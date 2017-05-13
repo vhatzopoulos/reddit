@@ -6,12 +6,15 @@ import datetime
 from dotenv import find_dotenv, load_dotenv
 from elasticsearch import Elasticsearch
 
-# Setup praw
+
+# extract credentials from .env file
 load_dotenv(find_dotenv())
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 CLIENT_ID = os.environ.get("CLIENT_ID")
 USER_AGENT = os.environ.get("USER_AGENT")
 
+
+# Setup praw
 reddit = praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, user_agent=USER_AGENT)
 print(reddit.read_only)
 
