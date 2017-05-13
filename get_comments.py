@@ -75,7 +75,7 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 			'created':dt,
 			'gilded':comment.gilded
 			}
-		res = es.index(index="rjobs", doc_type='comment', id=num_comments, body=body)
+		res = es.index(index=index, doc_type='comment', id=num_comments, body=body)
 		num_comments += 1
 		print(comment.submission.title)
 		print(res['created'],num_comments)
