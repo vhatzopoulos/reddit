@@ -10,7 +10,7 @@ from elasticsearch import Elasticsearch
 load_dotenv(find_dotenv())
 CLIENT_SECRET = os.environ.get("SECRET")
 CLIENT_ID = os.environ.get("CLIENT_ID")
-
+USER_AGENT = os.environ.get("USER_AGENT")
 reddit = praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, user_agent=USER_AGENT)
 print(reddit.read_only)
 
