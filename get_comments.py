@@ -1,4 +1,5 @@
 import requests
+import argparse
 import os
 import praw
 from pprint import pprint
@@ -6,20 +7,31 @@ import datetime
 from dotenv import find_dotenv, load_dotenv
 from elasticsearch import Elasticsearch
 
-# Setup praw
+# extract credentials from .env file
 load_dotenv(find_dotenv())
-CLIENT_SECRET = os.environ.get("SECRET")
+CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 CLIENT_ID = os.environ.get("CLIENT_ID")
 USER_AGENT = os.environ.get("USER_AGENT")
+
+
+# extact index and subreddit from command line arguments
+parser = argparse.ArgumentParser(description='Python program to collect comments from a subreddit and insert into Elasticsearch index.')
+
+parser.add_argument('--subreddit', help='The subreddit to query', type=str)
+parser.add_argument('--index', help='The elasticsearch index to insert the comments. Will be created if does not already exist', type=str)
+args = parser.parse_args()
+index, subreddit = args.index, args.subreddit
+
+
+# Setup praw
 reddit = praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, user_agent=USER_AGENT)
 print(reddit.read_only)
 
-
 # Setup ES
 es = Elasticsearch()
-if es.indices.exists("rjobs"):
-    es.indices.delete(index="rjobs")
-res = es.indices.create(index="rjobs")
+if es.indices.exists(index):
+    es.indices.delete(index=index)
+res = es.indices.create(index=index)
 
 es.indices.put_mapping(
 	index="rjobs",
@@ -53,9 +65,11 @@ es.indices.put_mapping(
 )
 
 num_comments = 0
-subreddit = 'jobs'
-for submission in reddit.subreddit(subreddit).top(limit=None):
 
+# loop through all submissions and all comments within them
+for submission in reddit.subreddit(subreddit).top(limit=None):
+	
+	# take care of nested comments 
 	submission.comments.replace_more(limit=0)
 	for comment in submission.comments.list():
 		dt = datetime.datetime.fromtimestamp(comment.created).strftime('%Y-%m-%d')
@@ -69,7 +83,7 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 			'created':dt,
 			'gilded':comment.gilded
 			}
-		res = es.index(index="rjobs", doc_type='comment', id=num_comments, body=body)
+		res = es.index(index=index, doc_type='comment', id=num_comments, body=body)
 		num_comments += 1
 		print(comment.submission.title)
 		print(res['created'],num_comments)
