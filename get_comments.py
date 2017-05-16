@@ -1,4 +1,4 @@
-import requests
+import hashlib
 import argparse
 import os
 import praw
@@ -83,7 +83,8 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 			'created':dt,
 			'gilded':comment.gilded
 			}
-		res = es.index(index=index, doc_type='comment', id=num_comments, body=body)
+		doc_id = hashlib.md5(body['submission'].encode('utf-8')).hexdigest()
+		res = es.index(index=index, doc_type='comment', id=doc_id, body=body)
 		num_comments += 1
 		print(comment.submission.title)
 		print(res['created'],num_comments)
