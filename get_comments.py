@@ -1,4 +1,5 @@
 import requests
+import argparse
 import os
 import praw
 from pprint import pprint
@@ -6,21 +7,26 @@ import datetime
 from dotenv import find_dotenv, load_dotenv
 from elasticsearch import Elasticsearch
 
-
 # extract credentials from .env file
 load_dotenv(find_dotenv())
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 CLIENT_ID = os.environ.get("CLIENT_ID")
 USER_AGENT = os.environ.get("USER_AGENT")
 
+# extact index and subreddit from command line arguments
+parser = argparse.ArgumentParser(description='Python program to collect comments from a subreddit and insert into Elasticsearch index.')
+
+parser.add_argument('--subreddit', help='The subreddit to query', type=str)
+parser.add_argument('--index', help='The elasticsearch index to insert the comments. Will be created if does not already exist', type=str)
+args = parser.parse_args()
+index, subreddit = args.index, args.subreddit
+
 
 # Setup praw
 reddit = praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, user_agent=USER_AGENT)
 print(reddit.read_only)
 
-
 # Setup ES
-index="rjobs"
 es = Elasticsearch()
 if es.indices.exists(index):
     es.indices.delete(index=index)
@@ -58,8 +64,6 @@ es.indices.put_mapping(
 )
 
 num_comments = 0
-subreddit = 'jobs'
-
 
 # loop through all submissions and all comments within them
 for submission in reddit.subreddit(subreddit).top(limit=None):
