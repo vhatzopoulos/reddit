@@ -83,7 +83,7 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 			'created':dt,
 			'gilded':comment.gilded
 			}
-		doc_id = hashlib.md5(body['submission'].encode('utf-8')).hexdigest()
+		doc_id = hashlib.md5(body['submission']+body['score']+body['gilded'].encode('utf-8')).hexdigest()
 		res = es.index(index=index, doc_type='comment', id=doc_id, body=body)
 		num_comments += 1
 		print(comment.submission.title)
