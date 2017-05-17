@@ -78,7 +78,8 @@ def sentiment(score):
 
 # loop through all submissions and all comments within them
 for submission in reddit.subreddit(subreddit).top(limit=None):
-	
+	print(submission.title)
+	print('\n')
 	# take care of nested comments 
 	submission.comments.replace_more(limit=0)
 	for comment in submission.comments.list():
@@ -100,5 +101,5 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 		#num_comments += 1
 		#print(comment.submission.title)
 		#print(res['created'],num_comments)
-		print(comment.submission.title, res['created'])
+		#print(comment.submission.title, res['created'])
 	
