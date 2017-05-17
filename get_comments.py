@@ -88,5 +88,5 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 		#num_comments += 1
 		#print(comment.submission.title)
 		#print(res['created'],num_comments)
-		print(comment.submission,title, res['created'])
+		print(comment.submission.title, res['created'])
 	
