@@ -64,7 +64,7 @@ es.indices.put_mapping(
 	}
 )
 
-num_comments = 0
+#num_comments = 0
 
 # loop through all submissions and all comments within them
 for submission in reddit.subreddit(subreddit).top(limit=None):
@@ -85,7 +85,8 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 			}
 		doc_id = hashlib.md5(body['body'].encode('utf-8')).hexdigest()
 		res = es.index(index=index, doc_type='comment', id=doc_id, body=body)
-		num_comments += 1
-		print(comment.submission.title)
-		print(res['created'],num_comments)
+		#num_comments += 1
+		#print(comment.submission.title)
+		#print(res['created'],num_comments)
+		print(comment.submission,title, res['created'])
 	
