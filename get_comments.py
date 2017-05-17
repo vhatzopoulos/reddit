@@ -56,6 +56,9 @@ es.indices.put_mapping(
 			"gilded": {
 				"type": "text"
 				},
+			"sentiment": {
+				"type": "integer"
+				},
 			"created": {
 				"type": "date",
 				"format" : "yyyy-MM-dd"
@@ -65,6 +68,13 @@ es.indices.put_mapping(
 )
 
 #num_comments = 0
+def sentiment(score):
+	if score == 0:
+		return 0
+	if score > 0:
+		return 1
+	return -1
+
 
 # loop through all submissions and all comments within them
 for submission in reddit.subreddit(subreddit).top(limit=None):
@@ -74,6 +84,7 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 	for comment in submission.comments.list():
 		dt = datetime.datetime.fromtimestamp(comment.created).strftime('%Y-%m-%d')
 		
+
 		body = {
 			'submission':comment.submission.title,
 			'body': comment.body,
@@ -81,7 +92,8 @@ for submission in reddit.subreddit(subreddit).top(limit=None):
 			'ups': comment.ups,
 			'downs': comment.downs,
 			'created':dt,
-			'gilded':comment.gilded
+			'gilded':comment.gilded,
+			'sentiment': sentiment(comment.score)
 			}
 		doc_id = hashlib.md5(body['body'].encode('utf-8')).hexdigest()
 		res = es.index(index=index, doc_type='comment', id=doc_id, body=body)
